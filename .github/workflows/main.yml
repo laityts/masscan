@@ -7,11 +7,11 @@ on:
   pull_request:
     branches:
       - main
-  workflow_dispatch: # 允许手动触发构建
+  workflow_dispatch: # 允许手动触发
 
 jobs:
   build:
-    runs-on: ubuntu-latest # 运行环境
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         arch: [arm64] # 目标架构
@@ -22,11 +22,25 @@ jobs:
       - name: 设置 QEMU（用于交叉编译）
         uses: docker/setup-qemu-action@v3
 
-      - name: 设置 ARM64 交叉编译工具链
+      - name: 安装 ARM64 交叉编译工具链
         run: |
           sudo apt update
-          sudo apt install -y gcc-aarch64-linux-gnu make libpcap-dev
+          sudo apt install -y gcc-aarch64-linux-gnu make
 
-      - name: 编译 Masscan
+      - name: 编译 Masscan（ARM64，使用多线程）
         run: |
-          make CROSS_COM
+          make -j4 CROSS_COMPILE=aarch64-linux-gnu-
+
+      - name: 安装 Masscan（可选）
+        run: |
+          sudo make install
+
+      - name: 查看编译后的二进制文件
+        run: |
+          file bin/masscan
+
+      - name: 上传构建的 ARM64 二进制文件
+        uses: actions/upload-artifact@v4
+        with:
+          name: masscan-arm64
+          path: bin/masscan
