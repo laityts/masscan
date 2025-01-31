@@ -1,0 +1,32 @@
+name: Build Masscan for ARM64
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch: # 允许手动触发构建
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # 运行环境
+    strategy:
+      matrix:
+        arch: [arm64] # 目标架构
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 QEMU（用于交叉编译）
+        uses: docker/setup-qemu-action@v3
+
+      - name: 设置 ARM64 交叉编译工具链
+        run: |
+          sudo apt update
+          sudo apt install -y gcc-aarch64-linux-gnu make libpcap-dev
+
+      - name: 编译 Masscan
+        run: |
+          make CROSS_COM
