@@ -7,14 +7,15 @@ on:
   pull_request:
     branches:
       - main
-  workflow_dispatch: # 允许手动触发
+  workflow_dispatch:  # 允许手动触发
 
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [arm64] # 目标架构
+        arch: [arm64]  # 目标架构
+
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
@@ -29,13 +30,9 @@ jobs:
 
       - name: 编译 Masscan（ARM64，使用多线程）
         run: |
-          make -j4 CROSS_COMPILE=aarch64-linux-gnu-
+          make -j4 CC=aarch64-linux-gnu-gcc
 
-      - name: 安装 Masscan（可选）
-        run: |
-          sudo make install
-
-      - name: 查看编译后的二进制文件
+      - name: 查看编译后的二进制文件架构
         run: |
           file bin/masscan
 
